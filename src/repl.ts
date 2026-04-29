@@ -26,7 +26,7 @@ export function startRepl(state: State) {
         }
 
         try{
-           await cmd.callback(state)
+           await cmd.callback(state, ...clean.slice(1))
         }catch (e) {
             console.log(e)
         }

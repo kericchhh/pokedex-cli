@@ -1,16 +1,22 @@
 import {z} from "zod"
 import { Cache } from "./pokecache.js"
 
-const cache = new Cache(5 * 60 * 1000)
 
 export class PokeAPI {
-    private static readonly baseURL = "https://pokeapi.co/api/v2"
+    private static readonly baseURL = "https://pokeapi.co/api/v2";
+    private cache : Cache
+    
+    constructor(cacheInterval: number) {
+        this.cache = new Cache(cacheInterval)
+    }
 
-    constructor() {}
+    closeCache(){
+        this.cache.stopReapLoop()
+    }
 
     async fetchLocations(pageURL? : string): Promise<ShallowLocations> {
         const url = pageURL ?? `${PokeAPI.baseURL}/location-area`
-        const cached = cache.get<ShallowLocations>(url)
+        const cached = this.cache.get<ShallowLocations>(url)
         if(cached) {
             return cached
         }
@@ -20,9 +26,9 @@ export class PokeAPI {
             if(!res.ok){
                 throw new Error(`HTTP error: ${res.status}`)
             }
-            const data = await res.json()
+            const data: ShallowLocations = await res.json()
             const parsed = ShallowLocationsSchema.parse(data)
-            cache.add(url, parsed)
+            this.cache.add(url, parsed)
             return parsed
             
         } catch (e) {
@@ -32,14 +38,22 @@ export class PokeAPI {
     }
 
     async fetchLocation(locationName: string): Promise<Location> {
+        const url = `${PokeAPI.baseURL}/location-area/${locationName}`
+        const cached = this.cache.get<Location>(url)
+        if(cached){
+            return cached
+        }
         try {
-            const res = await fetch(`${PokeAPI.baseURL}/location-area/${locationName}`)
+            const res = await fetch(url)
             if(!res.ok){
                 throw new Error(`HTTP error: ${res.status}`)
                 
             }
-            const data = await res.json()
-            return LocationSchema.parse(data)
+
+            const data : Location = await res.json()
+            const parsed =  LocationSchema.parse(data)
+            this.cache.add(url, data)
+            return parsed
         } catch (e) {
             console.log(e)
             throw e
