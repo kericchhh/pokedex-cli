@@ -4,6 +4,7 @@ import { cmdHelp } from "./cmd_help.js";
 import { cmdMap } from "./cmd_map.js";
 import { cmdMapb } from "./cmd_mapb.js";
 import { cmdExplore } from "./cmd_explore.js";
+import { cmdCatch } from "./cmd_catch.js";
 
 export function getCommands(): Record<string, CLICommand> {
     return {
@@ -35,6 +36,12 @@ export function getCommands(): Record<string, CLICommand> {
             name: "explore",
             desc: "Lists the pokemons in the specified area (provide location name)",
             callback: cmdExplore
+        },
+
+        catch: {
+            name: "catch",
+            desc: "Try to catch a specified Pokemon",
+            callback: cmdCatch
         }
     }
 }

@@ -1,5 +1,6 @@
 import {z} from "zod"
 import { Cache } from "./pokecache.js"
+import { version } from "node:os";
 
 
 export class PokeAPI {
@@ -59,7 +60,42 @@ export class PokeAPI {
             throw e
         }
     }
+
+    async fetchPokemon(pokemonName: string): Promise<Pokemon> {
+        const url = `${PokeAPI.baseURL}/pokemon/${pokemonName}`
+        console.log("Fetching url",url)
+        const cached = this.cache.get<Pokemon>(url)
+        if(cached){
+            return cached
+        }
+        try {
+            const res = await fetch(url)
+            if(!res.ok){
+                throw new Error(`HTTP error: ${res.status}`)
+                
+            }
+            const data : Pokemon = await res.json()
+            const parsed = PokemonSchema.parse(data)
+            this.cache.add(url,data)
+            return parsed
+        } catch (e) {
+            console.log(e)
+            throw e
+        }
+    }
 }
+
+const PokemonSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+    base_experience: z.number(),
+    height: z.number(),
+    is_default: z.boolean(),
+    order: z.number(),
+    weight: z.number(), 
+})
+
+export type Pokemon = z.infer<typeof PokemonSchema>
 
 const ShallowLocationsSchema = z.object({
     count : z.number(),
