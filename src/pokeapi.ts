@@ -1,18 +1,29 @@
 import {z} from "zod"
+import { Cache } from "./pokecache.js"
+
+const cache = new Cache(5 * 60 * 1000)
+
 export class PokeAPI {
     private static readonly baseURL = "https://pokeapi.co/api/v2"
 
     constructor() {}
 
     async fetchLocations(pageURL? : string): Promise<ShallowLocations> {
+        const url = pageURL ?? `${PokeAPI.baseURL}/location-area`
+        const cached = cache.get<ShallowLocations>(url)
+        if(cached) {
+            return cached
+        }
         try {
-            const url = pageURL ?? `${PokeAPI.baseURL}/location-area`
+            
             const res = await fetch(url)
             if(!res.ok){
                 throw new Error(`HTTP error: ${res.status}`)
             }
             const data = await res.json()
-            return ShallowLocationsSchema.parse(data)
+            const parsed = ShallowLocationsSchema.parse(data)
+            cache.add(url, parsed)
+            return parsed
             
         } catch (e) {
             console.log(e)
