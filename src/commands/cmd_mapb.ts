@@ -1,4 +1,4 @@
-import { State } from "./state.js";
+import { State } from "../state.js";
 
 export async function cmdMapb(state: State) {
     if(state.prevLocationsURL === null){

@@ -1,4 +1,4 @@
-import type { CLICommand } from "./state.js";
+import type { CLICommand } from "../state.js";
 import { cmdExit } from "./cmd_exit.js";
 import { cmdHelp } from "./cmd_help.js";
 import { cmdMap } from "./cmd_map.js";

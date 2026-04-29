@@ -1,4 +1,4 @@
-import type { State } from "./state.js";
+import type { State } from "../state.js";
 
 export async function cmdMap(state:State) {
     const url = state.nextLocationsURL ?? undefined
